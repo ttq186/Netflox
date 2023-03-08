@@ -54,9 +54,7 @@ async def refresh_tokens(
     refresh_token: Record = Depends(valid_refresh_token),
     user: Record = Depends(valid_refresh_token_user),
 ) -> AccessTokenResponse:
-    refresh_token_value = await service.create_refresh_token(
-        user_id=refresh_token["user_id"]
-    )
+    refresh_token_value = await service.create_refresh_token(user_id=refresh_token["user_id"])
     response.set_cookie(**utils.get_refresh_token_settings(refresh_token_value))
 
     worker.add_task(service.expire_refresh_token, refresh_token["uuid"])
@@ -73,6 +71,4 @@ async def logout_user(
 ) -> None:
     await service.expire_refresh_token(refresh_token["uuid"])
 
-    response.delete_cookie(
-        **utils.get_refresh_token_settings(refresh_token["refresh_token"], expired=True)
-    )
+    response.delete_cookie(**utils.get_refresh_token_settings(refresh_token["refresh_token"], expired=True))

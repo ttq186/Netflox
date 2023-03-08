@@ -7,6 +7,6 @@ def hash_password(password: str) -> bytes:
     return bcrypt.hashpw(pw, salt)
 
 
-def check_password(password: str, password_in_db: bytes) -> bool:
+def verify_password(password: str, password_in_db: bytes) -> bool:
     password_bytes = bytes(password, "utf-8")
     return bcrypt.checkpw(password_bytes, password_in_db)

@@ -5,7 +5,7 @@ services:
     container_name: app
     image: app_image
     env_file:
-      - .env
+      - .env.example
     build:
       context: .
       dockerfile: Dockerfile
