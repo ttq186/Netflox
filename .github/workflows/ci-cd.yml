@@ -11,8 +11,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Copy env
+        run: cp ~/.env.netflox .
+
       - name: Build and restart docker compose
         run: |
           sudo docker compose build
           sudo docker compose down
           sudo docker compose up -d
+
+      - name: Claim resource from docker
+        run: sudo docker system prune -af
