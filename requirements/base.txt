@@ -2,6 +2,7 @@ aioredis==2.0.1
 alembic==1.9.1
 bcrypt
 databases[asyncpg]==0.7.0
+psycopg2==2.9.5
 orjson==3.8.4
 python-jose==3.3.0
 SQLAlchemy==1.4.46

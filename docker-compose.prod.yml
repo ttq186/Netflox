@@ -5,10 +5,10 @@ services:
     container_name: app
     image: app_image
     env_file:
-      - .env.example
+      - .env.netflox
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     volumes:
       - ./:/src
     ports:
