@@ -11,9 +11,9 @@ def get_refresh_token_settings(
     base_cookie = {
         "key": auth_config.REFRESH_TOKEN_KEY,
         "httponly": True,
-        "samesite": "none",
+        # "samesite": "none",
         "secure": auth_config.SECURE_COOKIES,
-        "domain": settings.SITE_DOMAIN,
+        # "domain": settings.SITE_DOMAIN,
     }
     if expired:
         return base_cookie

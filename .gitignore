@@ -13,3 +13,4 @@ venv/
 .vscode-server/
 .cache
 .python_history
+.dotnet
