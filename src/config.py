@@ -9,7 +9,7 @@ class Config(BaseSettings):
     DATABASE_URL: PostgresDsn
     REDIS_URL: RedisDsn
 
-    SITE_DOMAIN: str = "netflox.com"
+    SITE_DOMAIN: str = "netflox.ttq186.dev"
 
     ENVIRONMENT: Environment = Environment.PRODUCTION
 

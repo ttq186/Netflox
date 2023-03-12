@@ -11,11 +11,11 @@ app = FastAPI(**app_configs)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["localhost:5173", "http://localhost:5173", "127.0.0.1:5173", "http://127.0.0.1:5173", "https://netflox-git-authentication-duclm1809.vercel.app", "https://netflox-git-authen-with-no-credentials-duclm1809.vercel.app"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_origin_regex=settings.CORS_ORIGINS_REGEX,
     allow_credentials=True,
     allow_methods=("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"),
-    allow_headers=["*"],
+    allow_headers=settings.CORS_HEADERS,
 )
 
 
@@ -37,5 +37,6 @@ async def shutdown() -> None:
 @app.get("/healthcheck", include_in_schema=False)
 async def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
+
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
