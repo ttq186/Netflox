@@ -5,7 +5,7 @@ services:
     container_name: app
     image: app_image
     env_file:
-      - .env.netflox
+      - .env.example
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,15 +13,21 @@ services:
       - ./:/src
     ports:
       - 8000:8000
+    depends_on:
+      - postgres
 
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
+  postgres:
+    container_name: postgres
+    hostname: app_db
+    image: postgres:14.1
     environment:
-      PGADMIN_DEFAULT_EMAIL: email@example.com
-      PGADMIN_DEFAULT_PASSWORD: example
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=app
+      - POSTGRES_DB=app
+    volumes:
+      - app_pg_data:/var/lib/postgresql/data
     ports:
-      - 5050:80
+      - 5432:5432
 
   redis:
     image: redis:6.2-alpine
@@ -32,6 +38,10 @@ services:
       - '--requirepass myStrongPassword'
     ports:
       - 6379:6379
+
+volumes:
+  app_pg_data:
+    driver: "local"
 
 networks:
   default:
