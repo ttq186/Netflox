@@ -5,6 +5,8 @@ from zoneinfo import ZoneInfo
 import orjson
 from pydantic import BaseModel, root_validator
 
+from src.utils import to_camel
+
 
 def orjson_dumps(v: Any, *, default: Callable[[Any], Any] | None) -> str:
     return orjson.dumps(v, default=default).decode()
@@ -23,6 +25,7 @@ class ORJSONModel(BaseModel):
         json_dumps = orjson_dumps
         json_encoders = {datetime: convert_datetime_to_gmt}
         allow_population_by_field_name = True
+        alias_generator = to_camel
 
     @root_validator()
     def set_null_microseconds(cls, data: dict[str, Any]) -> dict[str, Any]:

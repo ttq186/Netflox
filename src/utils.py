@@ -8,3 +8,9 @@ ALPHA_NUM = string.ascii_letters + string.digits
 
 def generate_random_alphanum(length: int = 20) -> str:
     return "".join(random.choices(ALPHA_NUM, k=length))
+
+
+def to_camel(string: str) -> str:
+    return string.split("_")[0] + "".join(
+        word.capitalize() for word in string.split("_")[1:]
+    )

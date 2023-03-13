@@ -3,7 +3,7 @@ from typing import Optional
 
 from aioredis import Redis
 
-from src.models import ORJSONModel
+from src.schemas import ORJSONModel
 
 redis_client: Redis = None  # type: ignore
 

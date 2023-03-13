@@ -1,7 +1,6 @@
 from typing import Any
 
 from src.auth.config import auth_config
-from src.config import settings
 
 
 def get_refresh_token_settings(
@@ -12,8 +11,7 @@ def get_refresh_token_settings(
         "key": auth_config.REFRESH_TOKEN_KEY,
         "httponly": True,
         "samesite": "none",
-        # "secure": auth_config.SECURE_COOKIES,
-        "secure": True,
+        "secure": auth_config.SECURE_COOKIES,
         "domain": "netflox.ttq186.dev",
     }
     if expired:
