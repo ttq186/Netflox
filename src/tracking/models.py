@@ -27,7 +27,9 @@ watch_history = Table(
     Column("id", Integer, Identity(), primary_key=True),
     Column("user_id", ForeignKey("user.id", ondelete="CASCADE"), nullable=False),
     Column("movie_id", ForeignKey("movie.id", ondelete="CASCADE"), nullable=False),
-    Column("created_at", DateTime, server_default=func.now(), nullable=False),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
 )
 
 
@@ -47,6 +49,8 @@ review = Table(
     Column("user_id", ForeignKey("user.id", ondelete="CASCADE"), nullable=False),
     Column("movie_id", ForeignKey("movie.id", ondelete="CASCADE"), nullable=False),
     Column("content", String, nullable=False),
-    Column("created_at", DateTime, server_default=func.now(), nullable=False),
-    Column("created_at", DateTime, onupdate=func.now()),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
+    Column("created_at", DateTime(timezone=True), onupdate=func.now()),
 )

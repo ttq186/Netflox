@@ -22,8 +22,10 @@ user = Table(
     Column("is_admin", Boolean, server_default="false", nullable=False),
     Column("is_active", Boolean, server_default="false", nullable=False),
     Column("auth_type", Boolean, nullable=False),
-    Column("created_at", DateTime, server_default=func.now(), nullable=False),
-    Column("updated_at", DateTime, onupdate=func.now()),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
+    Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
 )
 
 refresh_token_table = Table(
@@ -32,7 +34,9 @@ refresh_token_table = Table(
     Column("id", Integer, Identity(), primary_key=True),
     Column("user_id", ForeignKey("user.id", ondelete="CASCADE"), nullable=False),
     Column("token", String, nullable=False),
-    Column("expires_at", DateTime, nullable=False),
-    Column("created_at", DateTime, server_default=func.now(), nullable=False),
-    Column("updated_at", DateTime, onupdate=func.now()),
+    Column("expires_at", DateTime(timezone=True), nullable=False),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
+    Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
 )

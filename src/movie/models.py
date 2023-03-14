@@ -19,13 +19,15 @@ movie = Table(
     Column("title", String, nullable=False),
     Column("original_name", String, nullable=False),
     Column("description", String),
-    Column("release_yeare", Integer, nullable=False),
+    Column("release_year", Integer, nullable=False),
     Column("background_url", String, nullable=False),
     Column("trailer_url", String, nullable=False),
     Column("imdb_rating", DECIMAL(2, 1)),
     Column("original_language", String),
-    Column("created_at", DateTime, server_default=func.now(), nullable=False),
-    Column("updated_at", DateTime, onupdate=func.now()),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
+    Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
 )
 
 genre = Table(
@@ -53,8 +55,10 @@ actor = Table(
     Column("gender", String, nullable=False),
     Column("description", String, nullable=False),
     Column("birthdate", String, nullable=False),
-    Column("created_at", DateTime, server_default=func.now(), nullable=False),
-    Column("updated_at", DateTime, onupdate=func.now()),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
+    Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
 )
 
 movie_actor = Table(

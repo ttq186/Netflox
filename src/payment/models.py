@@ -1,4 +1,13 @@
-from sqlalchemy import Column, ForeignKey, Identity, Integer, String, Table
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Identity,
+    Integer,
+    String,
+    Table,
+    func,
+)
 
 from src.database import metadata
 
@@ -25,4 +34,7 @@ payment_history = Table(
     ),
     Column("price", Integer),
     Column("billing_period", String),
+    Column(
+        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
+    ),
 )
