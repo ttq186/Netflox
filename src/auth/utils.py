@@ -4,7 +4,7 @@ from src.auth.config import auth_config
 
 
 def get_refresh_token_settings(
-    refresh_token: str,
+    refresh_token: str | None = None,
     expired: bool = False,
 ) -> dict[str, Any]:
     base_cookie = {
@@ -14,7 +14,7 @@ def get_refresh_token_settings(
         "secure": auth_config.SECURE_COOKIES,
         "domain": auth_config.SITE_DOMAIN,
     }
-    if expired:
+    if expired or not refresh_token:
         return base_cookie
 
     return {

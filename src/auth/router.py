@@ -1,5 +1,5 @@
 from databases.interfaces import Record
-from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Response, status, Cookie
 
 from src.auth import jwt, service, utils
 from src.auth.dependencies import (
@@ -64,10 +64,9 @@ async def refresh_tokens(
 @router.delete("/users/tokens")
 async def logout_user(
     response: Response,
-    refresh_token: Record = Depends(valid_refresh_token),
+    refresh_token: str = Cookie(..., alias="refreshToken"),
 ) -> None:
-    await service.expire_refresh_token(refresh_token["id"])
-
-    response.delete_cookie(
-        **utils.get_refresh_token_settings(refresh_token["token"], expired=True)
-    )
+    db_refresh_token = await service.get_refresh_token(refresh_token)
+    if db_refresh_token:
+        await service.expire_refresh_token(db_refresh_token["id"])
+    response.delete_cookie(**utils.get_refresh_token_settings(expired=True))
