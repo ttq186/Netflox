@@ -9,6 +9,20 @@ from src.movie.schemas import MovieOut, WatchHistoryOut
 router = APIRouter(prefix="/movies", tags=["Movie"])
 
 
+@router.get("/")
+async def get_movies(
+    search: str | None = None,
+    genres: list[str] | None = None,
+    page: int = Query(ge=1, default=1),
+    size: int = Query(ge=1, le=100, default=20),
+    jwt_data: JWTData = Depends(parse_jwt_user_data),
+) -> list[MovieOut]:
+    movies = await service.get_movies(
+        page=page, size=size, search=search, genres=genres
+    )
+    return movies  # type: ignore
+
+
 @router.get("/top_rated")
 async def get_top_rated_movies(
     page: int = Query(ge=1, default=1),
@@ -26,6 +40,18 @@ async def get_watched_movies(
     jwt_data: JWTData = Depends(parse_jwt_user_data),
 ) -> list[MovieOut]:
     movies = await service.get_watched_movies_by_user_id(
+        user_id=jwt_data.user_id, page=page, size=size
+    )
+    return movies  # type: ignore
+
+
+@router.get("/recommended")
+async def get_recommened_movies(
+    page: int = Query(ge=1, default=1),
+    size: int = Query(ge=1, le=100, default=20),
+    jwt_data: JWTData = Depends(parse_jwt_user_data),
+) -> list[MovieOut]:
+    movies = await service.get_recommended_movies_by_user_id(
         user_id=jwt_data.user_id, page=page, size=size
     )
     return movies  # type: ignore

@@ -43,6 +43,7 @@ watch_history_tb = Table(
     Column(
         "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
     ),
+    Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
 )
 
 genre_tb = Table(
