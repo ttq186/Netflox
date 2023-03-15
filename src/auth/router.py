@@ -1,5 +1,5 @@
 from databases.interfaces import Record
-from fastapi import APIRouter, BackgroundTasks, Depends, Response, status, Cookie
+from fastapi import APIRouter, BackgroundTasks, Cookie, Depends, Response, status
 
 from src.auth import jwt, service, utils
 from src.auth.dependencies import (

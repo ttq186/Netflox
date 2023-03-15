@@ -30,3 +30,8 @@ class WatchHistoryOut(ORJSONModel):
     user_id: int
     movie_id: int
     view_count: int
+
+
+class GenreOut(ORJSONModel):
+    id: int
+    name: str

@@ -80,7 +80,7 @@ async def get_recommended_movies_by_user_id(
     if len(movies) >= size:
         return movies
     extra_movies = await get_random_movies(size=size - len(movies))
-    return [*movies, *extra_movies]
+    return [*extra_movies, *movies]
 
 
 async def get_watched_movie_by_user_id_and_movie_id(
@@ -105,3 +105,7 @@ async def track_just_watched_movie(user_id: int, movie_id: int) -> Record | dict
         values={"view_count": new_view_count},
     )
     return {**watch_history, "view_count": new_view_count}
+
+
+async def get_genres() -> list[Record]:
+    return await database.fetch_all(genre_tb.select())

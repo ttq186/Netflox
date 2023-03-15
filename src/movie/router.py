@@ -4,7 +4,7 @@ from src.auth.jwt import parse_jwt_user_data
 from src.auth.schemas import JWTData
 from src.movie import service
 from src.movie.dependencies import valid_movie_id
-from src.movie.schemas import MovieOut, WatchHistoryOut
+from src.movie.schemas import GenreOut, MovieOut, WatchHistoryOut
 
 router = APIRouter(prefix="/movies", tags=["Movie"])
 
@@ -66,3 +66,11 @@ async def track_just_watched_movie(
         user_id=jwt_data.user_id, movie_id=movie_id
     )
     return watch_history  # type: ignore
+
+
+@router.get("/genres")
+async def get_genres(
+    jwt_data: JWTData = Depends(parse_jwt_user_data),
+) -> list[GenreOut]:
+    genres = await service.get_genres()
+    return genres  # type: ignore
