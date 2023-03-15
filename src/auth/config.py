@@ -10,6 +10,7 @@ class AuthConfig(BaseSettings):
     REFRESH_TOKEN_EXP: int = 60 * 60 * 24 * 21  # 21 days
 
     SECURE_COOKIES: bool = True
+    SITE_DOMAIN: str
 
 
 auth_config = AuthConfig()

@@ -21,18 +21,6 @@ watchlist = Table(
 )
 
 
-watch_history = Table(
-    "watch_history",
-    metadata,
-    Column("id", Integer, Identity(), primary_key=True),
-    Column("user_id", ForeignKey("user.id", ondelete="CASCADE"), nullable=False),
-    Column("movie_id", ForeignKey("movie.id", ondelete="CASCADE"), nullable=False),
-    Column(
-        "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
-    ),
-)
-
-
 rating = Table(
     "rating",
     metadata,

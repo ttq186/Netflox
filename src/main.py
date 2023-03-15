@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src import redis
 from src.auth.router import router as auth_router
+from src.movie.router import router as movie_router
 from src.config import app_configs, settings
 from src.database import database
 
@@ -39,4 +40,5 @@ async def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
 
 
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(auth_router)
+app.include_router(movie_router)

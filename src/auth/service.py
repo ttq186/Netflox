@@ -6,6 +6,7 @@ from sqlalchemy import insert, select
 
 from src import utils
 from src.auth.config import auth_config
+from src.auth.constants import AuthMethod
 from src.auth.exceptions import InvalidCredentials
 from src.auth.models import refresh_token_table, user
 from src.auth.schemas import AuthUser
@@ -13,13 +14,14 @@ from src.auth.security import hash_password, verify_password
 from src.database import database
 
 
-async def create_user(user: AuthUser) -> Record | None:
+async def create_user(auth_user: AuthUser) -> Record | None:
     insert_query = (
         insert(user)
         .values(
             {
-                "email": user.email,
-                "password": hash_password(user.password),
+                "email": auth_user.email,
+                "password": hash_password(auth_user.password),
+                "auth_method": AuthMethod.NORMAL,
                 "created_at": datetime.utcnow(),
             }
         )
@@ -46,7 +48,7 @@ async def create_refresh_token(
         refresh_token = utils.generate_random_alphanum(64)
 
     insert_query = refresh_token_table.insert().values(
-        refresh_token=refresh_token,
+        token=refresh_token,
         expires_at=datetime.utcnow() + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP),
         user_id=user_id,
     )
@@ -72,10 +74,7 @@ async def expire_refresh_token(refresh_token_uuid: UUID4) -> None:
 
 async def authenticate_user(auth_data: AuthUser) -> Record:
     user = await get_user_by_email(auth_data.email)
-    if not user:
-        raise InvalidCredentials()
-
-    if not verify_password(auth_data.password, user["password"]):
+    if not user or not verify_password(auth_data.password, user["password"]):
         raise InvalidCredentials()
 
     return user

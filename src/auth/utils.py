@@ -12,7 +12,7 @@ def get_refresh_token_settings(
         "httponly": True,
         "samesite": "none",
         "secure": auth_config.SECURE_COOKIES,
-        "domain": "netflox.ttq186.dev",
+        "domain": auth_config.SITE_DOMAIN,
     }
     if expired:
         return base_cookie

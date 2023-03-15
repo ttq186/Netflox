@@ -6,8 +6,8 @@ from sqlalchemy import pool
 
 from src.database import metadata, DATABASE_URL
 from src.auth.models import user, refresh_token_table
-from src.movie.models import actor, genre, movie_genre, movie, movie_actor
-from src.tracking.models import watch_history, watchlist, rating, review
+from src.movie.models import actor_tb, genre_tb, movie_genre_tb, movie_tb, movie_actor_tb, watch_history_tb
+from src.tracking.models import watchlist, rating, review
 from src.payment.models import payment_history, subscription
 
 
