@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Query
 
-from src.movie import service
 from src.auth.jwt import parse_jwt_user_data
 from src.auth.schemas import JWTData
-from src.movie.schemas import MovieOut
+from src.movie import service
+from src.movie.dependencies import valid_movie_id
+from src.movie.schemas import MovieOut, WatchHistoryOut
 
 router = APIRouter(prefix="/movies", tags=["Movie"])
 
@@ -30,12 +31,12 @@ async def get_watched_movies(
     return movies  # type: ignore
 
 
-# @router.post("/tracking")
-# async def track_just_watched_movie(
-#     movie_id: int,
-#     jwt_data: JWTData = Depends(parse_jwt_user_data),
-# ) -> list[MovieOut]:
-#     movies = await service.track_just_watched_movie(
-#         user_id=jwt_data.user_id, movie_id=movie_id
-#     )
-#     return movies  # type: ignore
+@router.post("/tracking")
+async def track_just_watched_movie(
+    jwt_data: JWTData = Depends(parse_jwt_user_data),
+    movie_id: int = Depends(valid_movie_id),
+) -> WatchHistoryOut:
+    watch_history = await service.track_just_watched_movie(
+        user_id=jwt_data.user_id, movie_id=movie_id
+    )
+    return watch_history  # type: ignore

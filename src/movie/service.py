@@ -1,33 +1,13 @@
 from databases.interfaces import Record
-from sqlalchemy import insert, select, desc, update, func
+from sqlalchemy import desc, func, select
 
-from src import utils
-from src.auth.constants import AuthMethod
-from src.auth.exceptions import InvalidCredentials
-from src.movie.models import movie_tb, watch_history_tb, movie_genre_tb, genre_tb
 from src.database import database
+from src.movie.models import genre_tb, movie_genre_tb, movie_tb, watch_history_tb
 
 
 async def get_movie_by_id(id: int) -> Record | None:
     select_query = select(movie_tb).filter(movie_tb.c.id == id)
     return await database.fetch_one(select_query)
-
-
-async def get_or_create_watch_history_if_not_exist(
-    user_id: int, movie_id: int
-) -> Record | None:
-    select_query = select(watch_history_tb).filter(
-        watch_history_tb.c.user_id == user_id, watch_history_tb.c.movie_id == movie_id
-    )
-    watch_history = await database.fetch_one(select_query)
-    if watch_history:
-        return watch_history
-    insert_query = (
-        insert(watch_history)
-        .values({"user_id": user_id, "movie_id": movie_id})
-        .returning(watch_history)
-    )
-    return await database.fetch_one(insert_query)
 
 
 async def get_top_rated_movies(page: int, size: int) -> list[Record]:
@@ -48,7 +28,7 @@ async def get_watched_movies_by_user_id(
     user_id: int, page: int, size: int
 ) -> list[Record]:
     select_query = (
-        select(movie_tb)
+        movie_tb.select()
         .join_from(
             movie_tb, watch_history_tb, movie_tb.c.id == watch_history_tb.c.movie_id
         )
@@ -58,9 +38,41 @@ async def get_watched_movies_by_user_id(
     return await database.fetch_all(select_query)
 
 
-# async def track_just_watched_movie(user_id: int, movie_id: int) -> list[Record]:
-#     watch_history = get_or_create_watch_history_if_not_exist(
-#         user_id=user_id, movie_id=movie_id
-#     )
-#     update_query = update(watch_history)
-#     # watch_history
+async def get_watched_movie_by_user_id_and_movie_id(
+    user_id: int, movie_id: int
+) -> Record | None:
+    select_query = watch_history_tb.select().filter(
+        watch_history_tb.c.user_id == user_id, watch_history_tb.c.movie_id == movie_id
+    )
+    return await database.fetch_one(select_query)
+
+
+async def create_watched_movie(user_id: int, movie_id: int) -> Record:
+    insert_query = (
+        watch_history_tb.insert()
+        .values(user_id=user_id, movie_id=movie_id, view_count=1)
+        .returning(watch_history_tb)
+    )
+    return await database.fetch_one(insert_query)  # type: ignore
+
+
+async def update_watched_movie(id: int, values: dict) -> None:
+    update_query = (
+        watch_history_tb.update().values(values).where(watch_history_tb.c.id == id)
+    )
+    await database.execute(update_query)
+
+
+async def track_just_watched_movie(user_id: int, movie_id: int) -> Record | dict:
+    watch_history = await get_watched_movie_by_user_id_and_movie_id(
+        user_id=user_id, movie_id=movie_id
+    )
+    if not watch_history:
+        return await create_watched_movie(user_id=user_id, movie_id=movie_id)
+
+    new_view_count = watch_history["view_count"] + 1
+    await update_watched_movie(
+        id=watch_history["id"],
+        values={"view_count": new_view_count},
+    )
+    return {**watch_history, "view_count": new_view_count}

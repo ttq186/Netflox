@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    DATE,
     DECIMAL,
     Column,
     DateTime,
@@ -7,9 +8,8 @@ from sqlalchemy import (
     Integer,
     String,
     Table,
+    UniqueConstraint,
     func,
-    DATE,
-    UniqueConstraint
 )
 
 from src.database import metadata
@@ -30,7 +30,7 @@ movie_tb = Table(
         "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
     ),
     Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
-    UniqueConstraint("title", "original_name", name="movie_unique_constraint")
+    UniqueConstraint("title", "original_name", name="movie_unique_constraint"),
 )
 
 watch_history_tb = Table(

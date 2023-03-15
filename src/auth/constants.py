@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class ErrorCode:
+class ErrorMessage:
     AUTHENTICATION_REQUIRED = "Authentication required!"
     AUTHORIZATION_FAILED = "Authorization failed. User has no access."
     INVALID_TOKEN = "Invalid token!"

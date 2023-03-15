@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src import redis
 from src.auth.router import router as auth_router
-from src.movie.router import router as movie_router
 from src.config import app_configs, settings
 from src.database import database
+from src.movie.router import router as movie_router
 
 app = FastAPI(**app_configs)
 

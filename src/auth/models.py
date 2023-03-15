@@ -13,7 +13,7 @@ from sqlalchemy import (
 
 from src.database import metadata
 
-user = Table(
+user_tb = Table(
     "user",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
@@ -28,7 +28,7 @@ user = Table(
     Column("updated_at", DateTime(timezone=True), onupdate=func.now()),
 )
 
-refresh_token_table = Table(
+refresh_token_tb = Table(
     "refresh_token",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
