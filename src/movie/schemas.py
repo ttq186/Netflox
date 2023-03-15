@@ -35,3 +35,7 @@ class WatchHistoryOut(ORJSONModel):
 class GenreOut(ORJSONModel):
     id: int
     name: str
+
+
+class MovieIn(ORJSONModel):
+    genres: list[str] | None

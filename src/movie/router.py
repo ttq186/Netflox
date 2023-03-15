@@ -4,21 +4,24 @@ from src.auth.jwt import parse_jwt_user_data
 from src.auth.schemas import JWTData
 from src.movie import service
 from src.movie.dependencies import valid_movie_id
-from src.movie.schemas import GenreOut, MovieOut, WatchHistoryOut
+from src.movie.schemas import GenreOut, MovieIn, MovieOut, WatchHistoryOut
 
 router = APIRouter(prefix="/movies", tags=["Movie"])
 
 
 @router.get("/")
 async def get_movies(
+    movie_in: MovieIn | None = None,
     search: str | None = None,
-    genres: list[str] | None = None,
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=20),
     jwt_data: JWTData = Depends(parse_jwt_user_data),
 ) -> list[MovieOut]:
     movies = await service.get_movies(
-        page=page, size=size, search=search, genres=genres
+        page=page,
+        size=size,
+        search=search,
+        genres=movie_in.genres if movie_in else None,
     )
     return movies  # type: ignore
 

@@ -1,5 +1,5 @@
 from databases.interfaces import Record
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, or_, select
 from sqlalchemy.sql.selectable import Select
 
 from src.database import database
@@ -37,12 +37,16 @@ def get_base_movie_select_query() -> Select:
 
 
 async def get_movie_by_id(id: int) -> Record | None:
-    select_query = select(movie_tb).filter(movie_tb.c.id == id)
+    select_query = select(movie_tb).where(movie_tb.c.id == id)
     return await database.fetch_one(select_query)
 
 
-async def get_random_movies(size: int) -> list[Record]:
+async def get_random_movies(
+    size: int, exclude_ids: list[int] | None = None
+) -> list[Record]:
     select_query = get_base_movie_select_query()
+    if exclude_ids:
+        select_query = select_query.where(movie_tb.c.id.not_in(exclude_ids))
     select_query = select_query.order_by(func.random() * movie_tb.c.id).limit(size)
     return await database.fetch_all(select_query)
 
@@ -50,7 +54,26 @@ async def get_random_movies(size: int) -> list[Record]:
 async def get_movies(
     page: int, size: int, search: str | None, genres: list[str] | None
 ) -> list[Record]:
-    select_query = get_base_movie_select_query()
+    if genres:
+        select_query = (
+            select(movie_tb, func.array_agg(genre_tb.c.name).label("genres"))
+            .select_from(movie_tb)
+            .join(movie_genre_tb)
+            .join(genre_tb)
+            .where(genre_tb.c.name.in_(genres))
+            .group_by(movie_tb.c.id)
+        )
+    else:
+        select_query = get_base_movie_select_query()
+
+    if search:
+        select_query = select_query.where(
+            or_(
+                movie_tb.c.original_name.ilike(f"%{search}%"),
+                movie_tb.c.title.ilike(f"%{search}%"),
+            )
+        )
+
     select_query = apply_pagination(query=select_query, page=page, size=size)
     return await database.fetch_all(select_query)
 
@@ -67,7 +90,8 @@ async def get_watched_movies_by_user_id(
     select_query = (
         get_base_movie_select_query()
         .join(watch_history_tb)
-        .filter(watch_history_tb.c.user_id == user_id)
+        .where(watch_history_tb.c.user_id == user_id)
+        .order_by(desc(watch_history_tb.c.view_count))
     )
     select_query = apply_pagination(query=select_query, page=page, size=size)
     return await database.fetch_all(select_query)
@@ -79,14 +103,17 @@ async def get_recommended_movies_by_user_id(
     movies = await get_watched_movies_by_user_id(user_id=user_id, page=page, size=size)
     if len(movies) >= size:
         return movies
-    extra_movies = await get_random_movies(size=size - len(movies))
+    movie_ids = [movie["id"] for movie in movies]
+    extra_movies = await get_random_movies(
+        size=size - len(movies), exclude_ids=movie_ids
+    )
     return [*extra_movies, *movies]
 
 
 async def get_watched_movie_by_user_id_and_movie_id(
     user_id: int, movie_id: int
 ) -> Record | None:
-    select_query = watch_history_tb.select().filter(
+    select_query = watch_history_tb.select().where(
         watch_history_tb.c.user_id == user_id, watch_history_tb.c.movie_id == movie_id
     )
     return await database.fetch_one(select_query)
