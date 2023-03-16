@@ -91,7 +91,6 @@ async def get_watched_movies_by_user_id(
         get_base_movie_select_query()
         .join(watch_history_tb)
         .where(watch_history_tb.c.user_id == user_id)
-        .order_by(desc(watch_history_tb.c.view_count))
     )
     select_query = apply_pagination(query=select_query, page=page, size=size)
     return await database.fetch_all(select_query)

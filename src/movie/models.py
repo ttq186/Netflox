@@ -18,13 +18,13 @@ movie_tb = Table(
     "movie",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
-    Column("title", String, nullable=False),
-    Column("original_name", String, nullable=False),
+    Column("title", String, nullable=False, index=True),
+    Column("original_name", String, nullable=False, index=True),
     Column("description", String),
-    Column("release_date", DATE, nullable=False),
+    Column("release_date", DATE, nullable=False, index=True),
     Column("background_url", String, nullable=False),
     Column("trailer_url", String, nullable=False),
-    Column("vote_average", DECIMAL(2, 1)),
+    Column("vote_average", DECIMAL(2, 1), index=True),
     Column("original_language", String),
     Column(
         "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -50,7 +50,7 @@ genre_tb = Table(
     "genre",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
-    Column("name", String, nullable=False),
+    Column("name", String, nullable=False, index=True),
 )
 
 movie_genre_tb = Table(
@@ -66,11 +66,11 @@ actor_tb = Table(
     "actor",
     metadata,
     Column("id", Integer, Identity(), primary_key=True),
-    Column("first_name", String, nullable=False),
-    Column("last_name", String, nullable=False),
+    Column("first_name", String, nullable=False, index=True),
+    Column("last_name", String, nullable=False, index=True),
     Column("gender", String, nullable=False),
     Column("description", String, nullable=False),
-    Column("birthdate", String, nullable=False),
+    Column("birthdate", String, nullable=False, index=True),
     Column(
         "created_at", DateTime(timezone=True), server_default=func.now(), nullable=False
     ),
