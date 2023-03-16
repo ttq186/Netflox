@@ -9,7 +9,7 @@ from src.movie.schemas import GenreOut, MovieIn, MovieOut, WatchHistoryOut
 router = APIRouter(prefix="/movies", tags=["Movie"])
 
 
-@router.get("/")
+@router.get("")
 async def get_movies(
     movie_in: MovieIn | None = None,
     search: str | None = None,
