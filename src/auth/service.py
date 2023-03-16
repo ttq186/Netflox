@@ -4,12 +4,14 @@ from databases.interfaces import Record
 from sqlalchemy import select
 
 from src import utils
+from src.auth import jwt
 from src.auth.config import auth_config
 from src.auth.constants import AuthMethod
 from src.auth.exceptions import InvalidCredentials
 from src.auth.models import refresh_token_tb, user_tb
-from src.auth.schemas import AuthUser
+from src.auth.schemas import AuthUser, User
 from src.auth.security import hash_password, verify_password
+from src.auth.utils import send_activate_email, send_reset_password_email
 from src.database import database
 
 
@@ -75,5 +77,31 @@ async def authenticate_user(auth_data: AuthUser) -> Record:
     return user
 
 
-async def send_activate_mail(email: str) -> Record:
-    pass
+def create_and_send_activate_email(user: User) -> None:
+    username = user.username or user.email.split("@")[0]
+    token = jwt.create_access_token(
+        user=user.dict(),
+        expires_delta=timedelta(minutes=15),
+        secret_key=auth_config.JWT_EXTRA_SECRET,
+    )
+    activate_url = f"{auth_config.SITE_DOMAIN}/users/activate?token={token}"
+    send_activate_email(
+        receiver_email=user.email,
+        username=username,
+        activate_url=activate_url,
+    )
+
+
+def create_and_send_reset_password_email(user: User) -> None:
+    username = user.username or user.email.split("@")[0]
+    token = jwt.create_access_token(
+        user=user.dict(),
+        expires_delta=timedelta(minutes=10),
+        secret_key=auth_config.JWT_EXTRA_SECRET,
+    )
+    reset_url = f"{auth_config.SITE_DOMAIN}/users/reset-password?token={token}"
+    send_reset_password_email(
+        receiver_email=user.email,
+        username=username,
+        reset_url=reset_url,
+    )

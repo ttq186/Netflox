@@ -5,13 +5,14 @@ from fastapi import Cookie, Depends
 
 from src.auth import service
 from src.auth.exceptions import EmailNotRegistered, EmailTaken, RefreshTokenNotValid
-from src.auth.schemas import AuthUser, UserEmail
+from src.auth.schemas import AuthUser, User, UserEmail
 
 
-async def valid_user(user_email: UserEmail) -> UserEmail:
-    if not await service.get_user_by_email(user_email.email):
+async def valid_user(user_email: UserEmail) -> User:
+    user = await service.get_user_by_email(user_email.email)
+    if not user:
         raise EmailNotRegistered()
-    return user_email
+    return User(**user._mapping)
 
 
 async def valid_user_create(user: AuthUser) -> AuthUser:

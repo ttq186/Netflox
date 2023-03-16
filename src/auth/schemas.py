@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from pydantic import EmailStr, Field, validator
 
@@ -43,3 +44,15 @@ class UserResponse(ORJSONModel):
 
 class UserEmail(ORJSONModel):
     email: EmailStr
+
+
+class User(ORJSONModel):
+    id: int
+    email: EmailStr
+    username: str | None
+    is_admin: bool
+    is_active: bool
+    is_activated: bool
+    auth_method: str
+    created_at: datetime
+    updated_at: datetime | None
