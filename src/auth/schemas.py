@@ -28,6 +28,8 @@ class AuthUser(ORJSONModel):
 class JWTData(ORJSONModel):
     user_id: int = Field(alias="sub")
     is_admin: bool = False
+    is_activated: bool = False
+    is_active: bool = True
 
 
 class AccessTokenResponse(ORJSONModel):
@@ -36,4 +38,8 @@ class AccessTokenResponse(ORJSONModel):
 
 
 class UserResponse(ORJSONModel):
+    email: EmailStr
+
+
+class UserEmail(ORJSONModel):
     email: EmailStr

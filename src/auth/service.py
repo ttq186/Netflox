@@ -73,3 +73,7 @@ async def authenticate_user(auth_data: AuthUser) -> Record:
     if not user or not verify_password(auth_data.password, user["password"]):
         raise InvalidCredentials()
     return user
+
+
+async def send_activate_mail(email: str) -> Record:
+    pass

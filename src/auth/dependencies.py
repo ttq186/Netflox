@@ -4,14 +4,19 @@ from databases.interfaces import Record
 from fastapi import Cookie, Depends
 
 from src.auth import service
-from src.auth.exceptions import EmailTaken, RefreshTokenNotValid
-from src.auth.schemas import AuthUser
+from src.auth.exceptions import EmailNotRegistered, EmailTaken, RefreshTokenNotValid
+from src.auth.schemas import AuthUser, UserEmail
+
+
+async def valid_user(user_email: UserEmail) -> UserEmail:
+    if not await service.get_user_by_email(user_email.email):
+        raise EmailNotRegistered()
+    return user_email
 
 
 async def valid_user_create(user: AuthUser) -> AuthUser:
     if await service.get_user_by_email(user.email):
         raise EmailTaken()
-
     return user
 
 
@@ -21,7 +26,6 @@ async def valid_refresh_token(
     db_refresh_token = await service.get_refresh_token(refresh_token)
     if not db_refresh_token or not _is_valid_refresh_token(db_refresh_token):
         raise RefreshTokenNotValid()
-
     return db_refresh_token
 
 
@@ -31,7 +35,6 @@ async def valid_refresh_token_user(
     user = await service.get_user_by_id(refresh_token["user_id"])
     if not user:
         raise RefreshTokenNotValid()
-
     return user
 
 

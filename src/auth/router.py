@@ -5,10 +5,17 @@ from src.auth import jwt, service, utils
 from src.auth.dependencies import (
     valid_refresh_token,
     valid_refresh_token_user,
+    valid_user,
     valid_user_create,
 )
 from src.auth.jwt import parse_jwt_user_data
-from src.auth.schemas import AccessTokenResponse, AuthUser, JWTData, UserResponse
+from src.auth.schemas import (
+    AccessTokenResponse,
+    AuthUser,
+    JWTData,
+    UserEmail,
+    UserResponse,
+)
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -19,6 +26,16 @@ async def register_user(
 ) -> UserResponse:
     user = await service.create_user(auth_data)
     return user  # type: ignore
+
+
+@router.post("/activate/request")
+async def request_activate_account(
+    user_email: UserEmail = Depends(valid_user),
+) -> dict[str, str]:
+    await service.send_activate_mail(email=user_email.email)
+    return {
+        "detail": "An activate link has just been sent. Please check your email box!"
+    }
 
 
 @router.get("/users/me")
