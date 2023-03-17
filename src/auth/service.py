@@ -7,9 +7,13 @@ from src import utils
 from src.auth import jwt
 from src.auth.config import auth_config
 from src.auth.constants import AuthMethod
-from src.auth.exceptions import InvalidCredentials
+from src.auth.exceptions import (
+    AccountNotActivated,
+    AccountSuspended,
+    InvalidCredentials,
+)
 from src.auth.models import refresh_token_tb, user_tb
-from src.auth.schemas import AuthUser, User
+from src.auth.schemas import AuthUser, User, UserActivate, UserResetPassword
 from src.auth.security import hash_password, verify_password
 from src.auth.utils import send_activate_email, send_reset_password_email
 from src.database import database
@@ -74,6 +78,12 @@ async def authenticate_user(auth_data: AuthUser) -> Record:
     user = await get_user_by_email(auth_data.email)
     if not user or not verify_password(auth_data.password, user["password"]):
         raise InvalidCredentials()
+
+    if not user["is_active"]:
+        raise AccountSuspended()
+
+    if not user["is_activated"]:
+        raise AccountNotActivated()
     return user
 
 
@@ -105,3 +115,27 @@ def create_and_send_reset_password_email(user: User) -> None:
         username=username,
         reset_url=reset_url,
     )
+
+
+async def reset_password(user_reset_payload: UserResetPassword) -> None:
+    user_payload = jwt.decode_token(
+        token=user_reset_payload.token, secret_key=auth_config.JWT_EXTRA_SECRET
+    )
+    update_query = (
+        user_tb.update()
+        .values(password=hash_password(user_reset_payload.new_password))
+        .where(user_tb.c.email == user_payload["email"])
+    )
+    await database.fetch_one(update_query)
+
+
+async def activate_account(user_activate_payload: UserActivate) -> None:
+    user_payload = jwt.decode_token(
+        token=user_activate_payload.token, secret_key=auth_config.JWT_EXTRA_SECRET
+    )
+    update_query = (
+        user_tb.update()
+        .values(is_activated=True)
+        .where(user_tb.c.email == user_payload["email"])
+    )
+    await database.fetch_one(update_query)

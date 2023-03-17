@@ -16,6 +16,7 @@ class ErrorMessage:
     ACCOUNT_NOT_ACTIVATED = (
         "Your account has not been activated! Please activate and try again!"
     )
+    ACCOUNT_ALREADY_ACTIVATED = "Your account has already been activated!"
 
 
 class AuthMethod(str, Enum):

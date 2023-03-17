@@ -36,3 +36,7 @@ class AccountSuspended(PermissionDenied):
 
 class AccountNotActivated(PermissionDenied):
     DETAIL = ErrorMessage.ACCOUNT_NOT_ACTIVATED
+
+
+class AccountAlreadyActivated(BadRequest):
+    DETAIL = ErrorMessage.ACCOUNT_ALREADY_ACTIVATED

@@ -1,7 +1,7 @@
 from databases.interfaces import Record
 from fastapi import APIRouter, BackgroundTasks, Cookie, Depends, Response, status
 
-from src.auth import jwt, service, utils
+from src.auth import exceptions, jwt, service, utils
 from src.auth.dependencies import (
     valid_refresh_token,
     valid_refresh_token_user,
@@ -9,7 +9,15 @@ from src.auth.dependencies import (
     valid_user_create,
 )
 from src.auth.jwt import parse_jwt_user_data
-from src.auth.schemas import AccessTokenResponse, AuthUser, JWTData, User, UserResponse
+from src.auth.schemas import (
+    AccessTokenResponse,
+    AuthUser,
+    JWTData,
+    User,
+    UserActivate,
+    UserResetPassword,
+    UserResponse,
+)
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -22,11 +30,14 @@ async def register_user(
     return user  # type: ignore
 
 
-@router.post("/activate/request")
+@router.post("/users/activate/request")
 async def request_activate_account(
     background_tasks: BackgroundTasks,
     user: User = Depends(valid_user),
 ) -> dict[str, str]:
+    if user.is_activated:
+        raise exceptions.AccountAlreadyActivated()
+
     background_tasks.add_task(service.create_and_send_activate_email, user=user)
     return {
         "detail": "An activate link has just been sent. Please check your email box!"
@@ -42,6 +53,20 @@ async def forgot_password(
     return {
         "detail": "An activate link has just been sent. Please check your email box!"
     }
+
+
+@router.post("/users/reset-password")
+async def reset_password(
+    user_reset_payload: UserResetPassword,
+) -> dict[str, str]:
+    await service.reset_password(user_reset_payload)
+    return {"detail": "Your password has been reset successfully!"}
+
+
+@router.post("/users/activate")
+async def activate_account(user_activate_payload: UserActivate) -> dict[str, str]:
+    await service.activate_account(user_activate_payload)
+    return {"detail": "Your account has been activated! Please sign in again!"}
 
 
 @router.get("/users/me")

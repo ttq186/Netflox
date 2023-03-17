@@ -56,3 +56,12 @@ class User(ORJSONModel):
     auth_method: str
     created_at: datetime
     updated_at: datetime | None
+
+
+class UserResetPassword(ORJSONModel):
+    token: str
+    new_password: str
+
+
+class UserActivate(ORJSONModel):
+    token: str

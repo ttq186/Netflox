@@ -21,6 +21,7 @@ def create_access_token(
     jwt_data = {
         "sub": str(user["id"]),
         "exp": datetime.utcnow() + expires_delta,
+        "email": str(user["email"]),
         "is_admin": user["is_admin"],
         "is_active": user["is_active"],
         "is_activated": user["is_activated"],
@@ -51,12 +52,6 @@ async def parse_jwt_user_data(
     if not token:
         raise auth_exceptions.AuthRequired()
 
-    if not token.is_active:
-        raise auth_exceptions.AccountSuspended()
-
-    if not token.is_activated:
-        raise auth_exceptions.AccountNotActivated()
-
     return token
 
 
@@ -76,3 +71,15 @@ async def validate_admin_access(
         return
 
     raise auth_exceptions.AuthorizationFailed()
+
+
+def decode_token(
+    token: str,
+    secret_key: str = auth_config.JWT_SECRET,
+    algorithms: list[str] | str = [auth_config.JWT_ALG],
+) -> dict:
+    try:
+        payload = jwt.decode(token=token, key=secret_key, algorithms=algorithms)
+        return payload
+    except JWTError:
+        raise auth_exceptions.InvalidToken()
